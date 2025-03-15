@@ -3,15 +3,16 @@
 
 class User {
 private:
-    int id;
-    std::string name;
-    std::string email;
-    int salary;
-    bool broker;
-    bool subscription;
+    int id = 0;
+    std::string name = "";
+    std::string email = "";
+    int salary = 0;
+    bool broker = false;
+    bool subscription = false;
 
-    User(int id, std::string name, std::string email, int salary, bool broker, bool subscripton);
 public:
+    User() = default;
+    User(int id, std::string name, std::string email, int salary, bool broker, bool subscripton);
     void setName(std::string name) { this->name = name; };
     std::string getName() { return this->name; };
 
