@@ -12,19 +12,20 @@ private:
 
 public:
     User() = default;
-    User(int id, std::string name, std::string email, int salary, bool broker, bool subscripton);
+    User(int id, std::string name, std::string email, int salary, bool broker, bool subscripton) : id(id), name(name), email(email), salary(salary), broker(broker), subscription(subscription) {};
+
     void setName(std::string name) { this->name = name; };
-    std::string getName() { return this->name; };
+    std::string getName() const { return this->name; };
 
     void setEmail(std::string email) { this->email = email; };
-    std::string getEmail() { return this->email; };
+    std::string getEmail() const { return this->email; };
 
     void setSalary(int salary) { this->salary = salary; };
-    int getSalary() { return this->salary; };
+    int getSalary() const { return this->salary; };
 
     void setBroker(bool broker) { this->broker = broker; };
-    bool getBroker() { return this->subscription; };
+    bool getBroker() const { return this->broker; };
 
     void setSubscription(bool sub) { this->subscription = sub; };
-    bool getSubscription() { return this->subscription; };
+    bool getSubscription() const { return this->subscription; };
 };
