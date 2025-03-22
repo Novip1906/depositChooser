@@ -12,7 +12,7 @@ private:
 
 public:
     User() = default;
-    User(int id, std::string name, std::string email, int salary, bool broker, bool subscripton) : id(id), name(name), email(email), salary(salary), broker(broker), subscription(subscription) {};
+    User(int id, std::string name, std::string email, int salary, bool broker, bool subscription) : id(id), name(name), email(email), salary(salary), broker(broker), subscription(subscription) {};
 
     void setName(std::string name) { this->name = name; };
     std::string getName() const { return this->name; };
