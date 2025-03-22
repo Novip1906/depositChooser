@@ -204,16 +204,3 @@ namespace server {
     
 
 }
-
-using namespace server;
-
-int main() {
-    Server serv("http://127.0.0.1:5000", "token.txt");
-
-
-    User user = serv.load_user().getData();
-    std::cout << user.getName() << std::endl;
-
-
-    return 0;
-}
