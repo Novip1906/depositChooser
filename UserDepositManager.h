@@ -16,7 +16,6 @@ public:
     static void initServer(server::Server& server) {
         bankServer = &server;
     }
-
     // Синхронизация депозитов с сервером
     static bool syncUserDeposits(const User& user);
 
