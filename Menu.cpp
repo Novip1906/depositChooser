@@ -296,5 +296,5 @@ void show_deposit_menu(BankSystem &bank) {
     }
   }
 }
-
+/**/
 void BankSystem::callAssistant() {}
