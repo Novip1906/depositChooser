@@ -30,7 +30,6 @@ std::vector<Deposit> UserDepositManager::getAvailableDeposits(const User& user) 
         syncUserDeposits(user);
     }
 
-    // Возвращаем из кэша (даже если пустой)
     return cache[user.getEmail()];
 }
 
