@@ -31,7 +31,6 @@ BankSystem(server::Server& srv);
     bool login(const std::string &email, const std::string &password);
     void show_profile();
     void edit_profile(bool salary, bool broker, bool premium);
-    //void create_deposit(double amount, int duration, bool replenishable);
     void show_user_deposits();
     void show_available_deposits();
     void logout();
