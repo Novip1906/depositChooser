@@ -317,7 +317,7 @@ bool DepositAssistant::checkFirstAnswer(
           if (deposit.getName() == "Управляй") {
             double newBet = deposit.calculateBet(user);
             std::cout << "Вам подходит вклад " << deposit.getName() << "\n"
-                      << "Максимальная ставка: " << deposit.getDuration()
+                      << "Максимальная ставка: " << deposit.getMaxPercent()
                       << "%\n"
                       << "Расчетная ставка по вкладу: " << newBet << "%\n"
                       << calculateIncome(sum, newBet, duration)
@@ -352,7 +352,7 @@ void DepositAssistant::checkSecondAnswer(std::string& input, User& user,
         if (deposit.getName() == "ПростоВклад") {
           double newBet = deposit.calculateBet(user, withdrawProcents);
           std::cout << "Вам подходит вклад " << deposit.getName() << "\n"
-                    << "Максимальная ставка: " << deposit.getDuration()
+                    << "Максимальная ставка: " << deposit.getMaxPercent()
                     << "%\n"
                     << "Расчетная ставка по вкладу: " << newBet << "%\n"
                     << calculateIncome(sum, newBet, duration)
@@ -372,7 +372,7 @@ void DepositAssistant::checkSecondAnswer(std::string& input, User& user,
         if (deposit.getName() == "Лучший") {
           double newBet = deposit.calculateBet(user, withdrawProcents);
           std::cout << "Вам подходит вклад " << deposit.getName() << "\n"
-                    << "Максимальная ставка: " << deposit.getDuration()
+                    << "Максимальная ставка: " << deposit.getMaxPercent()
                     << "%\n"
                     << "Расчетная ставка по вкладу: " << newBet << "%\n"
                     << calculateIncome(sum, newBet, duration)
@@ -396,7 +396,7 @@ void DepositAssistant::checkSecondAnswer(std::string& input, User& user,
 }
 
 double Deposit::calculateBet(const User &user, bool withdrawProcents) const {
-  double adjustedBet = duration;
+  double adjustedBet = percent_max;
 
   if (!user.getSalary()) {
     adjustedBet -= 1.0;
@@ -472,7 +472,7 @@ void DepositAssistant::rechooseSumOrDuration(User& user, double& sum, int& durat
 
   // Перерасчёт вклада с новыми параметрами
   std::cout << "Вам подходит вклад " << recommendedDeposit.getName() << "\n"
-            << "Максимальная ставка: " << recommendedDeposit.getDuration()
+            << "Максимальная ставка: " << recommendedDeposit.getMaxPercent()
             << "%\n"
             << "Расчетная ставка по вкладу: " << newBet << "%\n"
             << calculateIncome(sum, newBet, duration) << "р. вы получите за "
@@ -526,14 +526,13 @@ bool DepositAssistant::showIfMenu(User& user, double sum, int duration,
                  "сделаем!\n\n";
     std::cout << "Если хотите узнать, как увеличить Вашу процентную ставку, "
                  "нажмите 3\n\n";
-    std::cout << "Если желаете посоветоваться со мной ещё раз, нажмите 4, я "
-                 "буду рад!\n\n";
-    std::cout << "Если работа со мной на сегодня закончена, нажмите 5\n\n";
+    std::cout << "Если работа со мной на сегодня закончена, нажмите 4\n\n";
     std::cin >> input;
 
     if (input == "1") {
       bool replenishable = (recommendedDeposit.getName() == "ПростоВклад");
-       bool withdrawable = (recommendedDeposit.getName() == "Управляй") || withdrawProcents;
+      bool withdrawable = (recommendedDeposit.getName() == "Управляй") ||
+                         (withdrawProcents && recommendedDeposit.getName() != "Управляй");
 
       std::cout << "\nСоздаётся вклад:\n"
               << "Тип: " << recommendedDeposit.getName() << "\n"
@@ -543,9 +542,6 @@ bool DepositAssistant::showIfMenu(User& user, double sum, int duration,
               << "Ожидаемый доход: " << calculateIncome(sum, newBet, duration) << " руб.\n"
               << "Пополняемый: " << (replenishable ? "Да" : "Нет") << "\n"
               << "Снятие процентов: " << (withdrawable ? "Да" : "Нет") << "\n\n";
-
-      //bankSystem.create_deposit(sum, duration, replenishable, withdrawable);
-      return false;
       std::cout << "Ваш вклад успешно оформлен! Спасибо за доверие!\n\n";
       return false; // Возврат в основное меню после оформления
     } else if (input == "2") {
