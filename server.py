@@ -57,7 +57,6 @@ def get_deposits():
             request.args.get("req_broker", "false").lower() == "true",
             request.args.get("req_premium", "false").lower() == "true",
         )
-        print(deposits)
         return create_response(data=deposits)
     except Exception as e:
         return create_response(code=1)

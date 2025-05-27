@@ -95,7 +95,8 @@ class DB:
             self.cur = self.conn.cursor()
 
         def get(self, dur_min, dur_max, p_min, p_max, sum_min, req_salary, req_broker, req_premium):
-            self.cur.execute("SELECT * FROM deposits WHERE duration_min>=? AND duration_max<=? AND percent_min>=? AND percent_max<=? AND sum_min>=? AND req_salary>=? AND req_broker>=? AND req_premium>=?",
+            self.cur.execute("SELECT * FROM deposits WHERE duration_min>=? AND duration_max<=? AND percent_min>=? AND percent_max<=? AND sum_min>=? AND req_salary<=? AND req_broker<=? AND req_premium<=?",
                              (dur_min, dur_max, p_min, p_max, sum_min, req_salary, req_broker, req_premium))
-            return [Deposit(*d) for d in self.cur.fetchall()]
+            res = self.cur.fetchall()
+            return [Deposit(*d) for d in res]
 
