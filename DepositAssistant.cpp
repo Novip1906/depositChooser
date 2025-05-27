@@ -530,27 +530,12 @@ bool DepositAssistant::showIfMenu(User& user, double sum, int duration,
     std::cin >> input;
 
     if (input == "1") {
-      bool replenishable = (recommendedDeposit.getName() == "ПростоВклад");
-      bool withdrawable = (recommendedDeposit.getName() == "Управляй") ||
-                         (withdrawProcents && recommendedDeposit.getName() != "Управляй");
-
-      std::cout << "\nСоздаётся вклад:\n"
-              << "Тип: " << recommendedDeposit.getName() << "\n"
-              << "Сумма: " << sum << " руб.\n"
-              << "Срок: " << duration << " месяцев\n"
-              << "Расчётная ставка: " << newBet << "%\n"
-              << "Ожидаемый доход: " << calculateIncome(sum, newBet, duration) << " руб.\n"
-              << "Пополняемый: " << (replenishable ? "Да" : "Нет") << "\n"
-              << "Снятие процентов: " << (withdrawable ? "Да" : "Нет") << "\n\n";
-      std::cout << "Ваш вклад успешно оформлен! Спасибо за доверие!\n\n";
-      return false; // Возврат в основное меню после оформления
-    } else if (input == "2") {
       rechooseSumOrDuration(user, sum, duration, recommendedDeposit, newBet,
-                            withdrawProcents);
-    } else if (input == "3") {
+        withdrawProcents);
+    } else if (input == "2") {
       // Логика увеличения процентной ставки
-       increaseInterestRate(user);
-    } else if (input == "4") {
+      increaseInterestRate(user);
+    } else if (input == "3") {
       // Возврат в основное меню Assistant
       std::cout << std::endl;
       std::cout << "Приятно было поработать вместе! Возвращаю Вас в основное "
@@ -558,7 +543,7 @@ bool DepositAssistant::showIfMenu(User& user, double sum, int duration,
       return true;
     } else {
       std::cout << "Мне кажется, я Вас немного не понял. Пожалуйста, введите "
-                   "1, 2, 3 или 4\n\n";
+                   "1, 2 или 3\n\n";
     }
   }
 }
@@ -601,7 +586,7 @@ void DepositAssistant::DepositChoice(
       if (deposit.getName() == "ПростоВклад" || deposit.getName() == "Лучший" ||
           deposit.getName() == "Управляй") {
         recommendedDeposit = deposit;
-        newBet = deposit.calculateBet(user, withdrawProcents);
+        newBet = recommendedDeposit.calculateBet(user, withdrawProcents);
         break;
       }
     }
