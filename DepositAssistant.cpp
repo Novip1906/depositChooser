@@ -3,6 +3,8 @@
 #include <iostream>
 #include <limits>
 
+DepositAssistant::DepositAssistant(BankSystem& bank) : bankSystem(bank) {}
+
 void DepositAssistant::runAssistant(
     User &user, const std::vector<Deposit> &availableDeposits) {
   std::cout << "\nПривет! Меня зовут Вкладыш, и я виртуальный ассистент этого "
@@ -505,7 +507,20 @@ bool DepositAssistant::showIfMenu(User& user, double sum, int duration,
     std::cin >> input;
 
     if (input == "1") {
-      // Логика оформления вклада
+      bool replenishable = (recommendedDeposit.getName() == "ПростоВклад");
+       bool withdrawable = (recommendedDeposit.getName() == "Управляй") || withdrawProcents;
+
+      std::cout << "\nСоздаётся вклад:\n"
+              << "Тип: " << recommendedDeposit.getName() << "\n"
+              << "Сумма: " << sum << " руб.\n"
+              << "Срок: " << duration << " месяцев\n"
+              << "Расчётная ставка: " << newBet << "%\n"
+              << "Ожидаемый доход: " << calculateIncome(sum, newBet, duration) << " руб.\n"
+              << "Пополняемый: " << (replenishable ? "Да" : "Нет") << "\n"
+              << "Снятие процентов: " << (withdrawable ? "Да" : "Нет") << "\n\n";
+
+      //bankSystem.create_deposit(sum, duration, replenishable, withdrawable);
+      return false;
       std::cout << "Ваш вклад успешно оформлен! Спасибо за доверие!\n\n";
       return false; // Возврат в основное меню после оформления
     } else if (input == "2") {

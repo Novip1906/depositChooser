@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "User.h"
 
 class Deposit {
 private:
@@ -51,6 +52,6 @@ public:
   void setReqBroker(bool req_broker) { this->req_broker = req_broker; }
   void setReqPremium(bool req_premium) { this->req_premium = req_premium; }
 
-  double calculateBet(const class Client &client,
+  double calculateBet(const User &user,
                       bool withdrawProcents = false) const;
 };

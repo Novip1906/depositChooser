@@ -61,7 +61,7 @@ public:
 #include <vector>
 #include <map>
 #include <string>
-#include <nlohmann/json.hpp>
+#include "json.hpp"
 
 using json = nlohmann::json;
 
@@ -82,14 +82,6 @@ public:
 
     void start();
 
-    // Аутентификация
-    server::Server::Response<User> sign_in(const std::string& email,
-                                        const std::string& password);
-    server::Server::Response<> sign_out();
-
-    // Работа с данными
-    server::Server::Response<User> load_user();
-    server::Server::Response<> save_user(const User& user);
 
     // Депозиты
     server::Server::Response<std::vector<Deposit>> get_deposits(

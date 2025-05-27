@@ -3,6 +3,7 @@
 #include "UserDepositManager.h"
 #include "server.h"
 #include <iostream>
+#include <iomanip>
 #include <limits>
 #include <regex>
 
@@ -14,8 +15,6 @@ BankSystem::BankSystem(server::Server &srv) : server(srv) {
     std::cout << "Вход в систему прошел успешно!\n";
     return;
   }
-
-  std::cout << "Ошибка входа. Код ошибки: " << response.getCode() << "\n";
 }
 
 bool BankSystem::register_user(const std::string &email,
@@ -113,11 +112,6 @@ void BankSystem::show_user_deposits() {
     return;
   }
 
-  for (const auto &deposit : deposits) {
-    std::cout << "Сумма: " << deposit.getMinSum()
-              << " | Срок: " << deposit.getDuration() << "м"
-              << "\n";
-  }
 }
 
 void BankSystem::show_available_deposits() {
@@ -135,17 +129,28 @@ void BankSystem::show_available_deposits() {
   }
 
   for (const auto &deposit : deposits) {
-    std::cout << "Сумма: " << deposit.getMinSum()
-              << " | Срок: " << deposit.getDuration() << "м"
-              << " | Ставка: " << deposit.getMaxPercent() << "%\n";
-  }
+    std::cout << "\n=== Информация о вкладе ===\n";
+    std::cout << "ID: " << deposit.getId() << "\n";
+    std::cout << "Название: " << deposit.getName() << "\n";
+    std::cout << "Описание: " << deposit.getDescription() << "\n";
+    std::cout << "Срок (мес): " << deposit.getDuration() << "-" << deposit.getDurationMax() << "\n";
+    std::cout << "Процентная ставка: " << deposit.getMinPercent() << "%-" << deposit.getMaxPercent() << "%\n";
+    std::cout << "Минимальная сумма: " << deposit.getMinSum() << "\n";
+    std::cout << "Требования:\n";
+    std::cout << "  • Зарплатный: " << (deposit.isReqSalary() ? "Да" : "Нет") << "\n";
+    std::cout << "  • Брокерский: " << (deposit.isReqBroker() ? "Да" : "Нет") << "\n";
+    std::cout << "  • Премиальный: " << (deposit.isReqPremium() ? "Да" : "Нет") << "\n";
+    std::cout << "==========================\n";
+}
 }
 
 void BankSystem::logout() {
   if (is_logged_in()) {
     server.sign_out();
     current_user_email.clear();
+    user.setEmail("");
     std::cout << "Успешно вышел из системы\n";
+
   }
 }
 
@@ -172,7 +177,7 @@ void show_main_menu(BankSystem &bank) {
       std::cout << "\nГлавное меню:\n"
                 << "1. Профиль\n"
                 << "2. Вклады\n"
-                << "3. Выйти\n"
+                << "3. Выход\n"
                 << "Введите цифру: ";
       std::cin >> choice;
 
@@ -191,9 +196,9 @@ void show_main_menu(BankSystem &bank) {
       }
     } else {
       std::cout << "\nГлавное меню:\n"
-                << "1. Профиль\n"
-                << "2. Вклады\n"
-                << "3. Выйти\n"
+                << "1. Вход\n"
+                << "2. Регистрация\n"
+                << "3. Выход\n"
                 << "Введите цифру: ";
       std::cin >> choice;
 
@@ -256,11 +261,9 @@ void show_deposit_menu(BankSystem &bank) {
   int choice;
   while (true) {
     std::cout << "\nМеню вкладов:\n"
-              << "1. Показывать доступные вклады\n"
-              << "2. Показать мои вклады\n"
-              << "3. Создать вклад\n"
-              << "4. Помощник по вкладам\n"
-              << "5. Назад\n"
+              << "1. Показать доступные вклады\n"
+              << "2. Помощник по вкладам\n"
+              << "3. Назад\n"
               << "Введите цифру: ";
     std::cin >> choice;
 
@@ -269,27 +272,9 @@ void show_deposit_menu(BankSystem &bank) {
       bank.show_available_deposits();
       break;
     case 2:
-      bank.show_user_deposits();
-      break;
-    case 3: {
-      double amount;
-      int duration;
-      bool replenishable;
-
-      std::cout << "Сумма: ";
-      std::cin >> amount;
-      std::cout << "Продолжительность (месяцы): ";
-      std::cin >> duration;
-      std::cout << "Пополняемый (1-Да, 0-Нет): ";
-      std::cin >> replenishable;
-
-      // bank.create_deposit(amount, duration, replenishable);
-      break;
-    }
-    case 4:
       bank.callAssistant();
       break;
-    case 5:
+    case 3:
       return;
     default:
       std::cout << "Неверный выбор!\n";
@@ -297,4 +282,8 @@ void show_deposit_menu(BankSystem &bank) {
   }
 }
 /**/
-void BankSystem::callAssistant() {}
+void BankSystem::callAssistant() {
+    DepositAssistant assistant(*this); // Передаём текущий BankSystem
+    auto deposits = UserDepositManager::getAvailableDeposits(user);
+    assistant.runAssistant(user, deposits);
+}
