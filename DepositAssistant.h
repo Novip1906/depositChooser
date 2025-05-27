@@ -32,6 +32,7 @@ private:
     bool showIfMenu(User& user, double sum,
                                         int duration, bool withdrawProcents,
                                         Deposit& recommendedDeposit, double newBet);
+    void increaseInterestRate(const User& user) const;
 
 public:
     explicit DepositAssistant(BankSystem& bank);
@@ -40,3 +41,4 @@ public:
     void DepositChoice(User& user,
                             const std::vector<Deposit>& availableDeposits);
 };
+                                        
