@@ -2,8 +2,8 @@
 #include "DepositAssistant.h"
 #include "UserDepositManager.h"
 #include "server.h"
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <limits>
 #include <regex>
 
@@ -34,15 +34,15 @@ bool BankSystem::register_user(const std::string &email,
   auto response = server.sign_up(email, name, password);
   if (!response.isSuccess()) {
     std::cerr << "Код ошибки: " << response.getCode() << "\n";
-    if (response.getCode() == 400) {
-      std::cerr << "Недопустимый формат запроса!\n";
-    } else if (response.getCode() == 409) {
-      std::cerr << "Электронная почта уже существует!\n";
-    }
+    return false;
+  }
+  if (response.getCode() == 1) {
+    std::cout << "Аккаунт с такой электронной почтой уже существует!"
+              << std::endl;
     return false;
   }
 
-  if (response.isSuccess() && response.getCode() == 0) {
+  if (response.getCode() == 0) {
     std::cout << "Регистрация прошла успешно!\n";
     return true;
   }
@@ -111,7 +111,6 @@ void BankSystem::show_user_deposits() {
     std::cout << "Депозиты не обнаружены\n";
     return;
   }
-
 }
 
 void BankSystem::show_available_deposits() {
@@ -133,15 +132,20 @@ void BankSystem::show_available_deposits() {
     std::cout << "ID: " << deposit.getId() << "\n";
     std::cout << "Название: " << deposit.getName() << "\n";
     std::cout << "Описание: " << deposit.getDescription() << "\n";
-    std::cout << "Срок (мес): " << deposit.getDuration() << "-" << deposit.getDurationMax() << "\n";
-    std::cout << "Процентная ставка: " << deposit.getMinPercent() << "%-" << deposit.getMaxPercent() << "%\n";
+    std::cout << "Срок (мес): " << deposit.getDuration() << " - "
+              << deposit.getDurationMax() << "\n";
+    std::cout << "Процентная ставка: " << deposit.getMinPercent() << "% - "
+              << deposit.getMaxPercent() << "%\n";
     std::cout << "Минимальная сумма: " << deposit.getMinSum() << "\n";
     std::cout << "Требования:\n";
-    std::cout << "  • Зарплатный: " << (deposit.isReqSalary() ? "Да" : "Нет") << "\n";
-    std::cout << "  • Брокерский: " << (deposit.isReqBroker() ? "Да" : "Нет") << "\n";
-    std::cout << "  • Премиальный: " << (deposit.isReqPremium() ? "Да" : "Нет") << "\n";
+    std::cout << "  • Зарплатный: " << (deposit.isReqSalary() ? "Да" : "Нет")
+              << "\n";
+    std::cout << "  • Брокерский: " << (deposit.isReqBroker() ? "Да" : "Нет")
+              << "\n";
+    std::cout << "  • Премиальный: " << (deposit.isReqPremium() ? "Да" : "Нет")
+              << "\n";
     std::cout << "==========================\n";
-}
+  }
 }
 
 void BankSystem::logout() {
@@ -149,8 +153,7 @@ void BankSystem::logout() {
     server.sign_out();
     current_user_email.clear();
     user.setEmail("");
-    std::cout << "Успешно вышел из системы\n";
-
+    std::cout << "Вы вышли из системы\n";
   }
 }
 
@@ -167,6 +170,26 @@ bool BankSystem::is_valid_email(const std::string &email) {
   return std::regex_match(email, pattern);
 }
 
+int getIntInput(const char *prompt) {
+  std::string input;
+  int value;
+  while (true) {
+    std::cout << prompt;
+    std::getline(std::cin, input);
+    try {
+      value = std::stoi(input);
+      return value;
+    } catch (...) {
+      std::cout << "Некорректный ввод. Попробуйте снова.\n";
+    }
+  }
+}
+
+void clearInputBuffer() {
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
 // Реализация меню
 void show_main_menu(BankSystem &bank) {
   int choice;
@@ -174,12 +197,13 @@ void show_main_menu(BankSystem &bank) {
 
   while (true) {
     if (bank.is_logged_in()) {
-      std::cout << "\nГлавное меню:\n"
+      std::cout << "Главное меню:\n"
                 << "1. Профиль\n"
                 << "2. Вклады\n"
                 << "3. Выход\n"
                 << "Введите цифру: ";
-      std::cin >> choice;
+      
+      choice = getIntInput("");  // Пустая строка, так как меню уже выведено
 
       switch (choice) {
       case 1:
@@ -195,12 +219,13 @@ void show_main_menu(BankSystem &bank) {
         std::cout << "Неверный выбор!\n";
       }
     } else {
-      std::cout << "\nГлавное меню:\n"
+      std::cout << "Главное меню:\n"
                 << "1. Вход\n"
                 << "2. Регистрация\n"
                 << "3. Выход\n"
                 << "Введите цифру: ";
-      std::cin >> choice;
+                
+      choice = getIntInput("");  // Пустая строка, так как меню уже выведено
 
       switch (choice) {
       case 1:
@@ -208,6 +233,7 @@ void show_main_menu(BankSystem &bank) {
         std::cin >> email;
         std::cout << "Пароль: ";
         std::cin >> password;
+        clearInputBuffer();
         bank.login(email, password);
         break;
       case 2:
@@ -219,6 +245,7 @@ void show_main_menu(BankSystem &bank) {
         std::cin >> password;
         std::cout << "Повторите пароль: ";
         std::cin >> repeat_password;
+        clearInputBuffer();
         bank.register_user(email, name, password, repeat_password);
         break;
       case 3:
@@ -238,7 +265,8 @@ void show_profile_menu(BankSystem &bank) {
               << "1. Редактировать профиль\n"
               << "2. Назад\n"
               << "Введите цифру: ";
-    std::cin >> choice;
+
+    choice = getIntInput("");
 
     if (choice == 1) {
       bool salary, broker, premium;
@@ -248,6 +276,7 @@ void show_profile_menu(BankSystem &bank) {
       std::cin >> broker;
       std::cout << "Премиум-подписка (1-Да, 0-Нет): ";
       std::cin >> premium;
+      clearInputBuffer();
       bank.edit_profile(salary, broker, premium);
     } else if (choice == 2) {
       break;
@@ -260,12 +289,13 @@ void show_profile_menu(BankSystem &bank) {
 void show_deposit_menu(BankSystem &bank) {
   int choice;
   while (true) {
-    std::cout << "\nМеню вкладов:\n"
+    std::cout << "Меню вкладов:\n"
               << "1. Показать доступные вклады\n"
               << "2. Помощник по вкладам\n"
               << "3. Назад\n"
               << "Введите цифру: ";
-    std::cin >> choice;
+
+    choice = getIntInput("");
 
     switch (choice) {
     case 1:
@@ -281,9 +311,9 @@ void show_deposit_menu(BankSystem &bank) {
     }
   }
 }
-/**/
+
 void BankSystem::callAssistant() {
-    DepositAssistant assistant(*this); // Передаём текущий BankSystem
-    auto deposits = UserDepositManager::getAvailableDeposits(user);
-    assistant.runAssistant(user, deposits);
+  DepositAssistant assistant(*this); // Передаём текущий BankSystem
+  auto deposits = UserDepositManager::getAvailableDeposits(user);
+  assistant.runAssistant(user, deposits);
 }
