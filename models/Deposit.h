@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include "User.h"
+#include <string>
 
 class Deposit {
 private:
@@ -42,7 +42,9 @@ public:
 
   void setId(int id) { this->id = id; }
   void setName(const std::string &name) { this->name = name; }
-  void setDescription(const std::string &description) { this->description = description; }
+  void setDescription(const std::string &description) {
+    this->description = description;
+  }
   void setDuration(int duration) { this->duration = duration; }
   void setDurationMax(int duration_max) { this->duration_max = duration_max; }
   void setMinPercent(double percent_min) { this->percent_min = percent_min; }
@@ -52,6 +54,5 @@ public:
   void setReqBroker(bool req_broker) { this->req_broker = req_broker; }
   void setReqPremium(bool req_premium) { this->req_premium = req_premium; }
 
-  double calculateBet(const User &user,
-                      bool withdrawProcents = false) const;
+  double calculateBet(const User &user, bool withdrawProcents = false) const;
 };

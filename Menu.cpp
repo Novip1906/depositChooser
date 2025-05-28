@@ -54,14 +54,21 @@ bool BankSystem::register_user(const std::string &email,
 bool BankSystem::login(const std::string &email, const std::string &password) {
   auto response = server.sign_in(email, password);
 
-  if (response.isSuccess() && response.getCode() == 0) {
+  if (!response.isSuccess()) {
+    std::cout << "Ошибка входа. Код ошибки: " << response.getCode() << "\n";
+  }
+
+  if (response.getCode() == 0) {
     current_user_email = email;
     user = response.getData();
     std::cout << "Вход в систему прошел успешно!\n";
     return true;
+  } else if (response.getCode() == 1) {
+    std::cout << "Такой почты не существует!\n";
+  } else if (response.getCode() == 2) {
+    std::cout << "Неверный пароль!\n";
   }
 
-  std::cout << "Ошибка входа. Код ошибки: " << response.getCode() << "\n";
   return false;
 }
 
@@ -138,12 +145,12 @@ void BankSystem::show_available_deposits() {
               << deposit.getMaxPercent() << "%\n";
     std::cout << "Минимальная сумма: " << deposit.getMinSum() << "\n";
     std::cout << "Требования:\n";
-    std::cout << "  • Зарплатный: " << (deposit.isReqSalary() ? "Да" : "Нет")
-              << "\n";
-    std::cout << "  • Брокерский: " << (deposit.isReqBroker() ? "Да" : "Нет")
-              << "\n";
-    std::cout << "  • Премиальный: " << (deposit.isReqPremium() ? "Да" : "Нет")
-              << "\n";
+    std::cout << "  • Зарплата в банке: "
+              << (deposit.isReqSalary() ? "Да" : "Нет") << "\n";
+    std::cout << "  • Брокерский счет: "
+              << (deposit.isReqBroker() ? "Да" : "Нет") << "\n";
+    std::cout << "  • Премиум подписка: "
+              << (deposit.isReqPremium() ? "Да" : "Нет") << "\n";
     std::cout << "==========================\n";
   }
 }
@@ -186,8 +193,8 @@ int getIntInput(const char *prompt) {
 }
 
 void clearInputBuffer() {
-    std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  std::cin.clear();
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 // Реализация меню
@@ -197,13 +204,13 @@ void show_main_menu(BankSystem &bank) {
 
   while (true) {
     if (bank.is_logged_in()) {
-      std::cout << "Главное меню:\n"
+      std::cout << "\nГлавное меню:\n"
                 << "1. Профиль\n"
                 << "2. Вклады\n"
-                << "3. Выход\n"
+                << "3. Выход из аккаунта\n"
                 << "Введите цифру: ";
-      
-      choice = getIntInput("");  // Пустая строка, так как меню уже выведено
+
+      choice = getIntInput("");
 
       switch (choice) {
       case 1:
@@ -219,13 +226,13 @@ void show_main_menu(BankSystem &bank) {
         std::cout << "Неверный выбор!\n";
       }
     } else {
-      std::cout << "Главное меню:\n"
+      std::cout << "\nГлавное меню:\n"
                 << "1. Вход\n"
                 << "2. Регистрация\n"
                 << "3. Выход\n"
                 << "Введите цифру: ";
-                
-      choice = getIntInput("");  // Пустая строка, так как меню уже выведено
+
+      choice = getIntInput("");
 
       switch (choice) {
       case 1:
@@ -289,7 +296,7 @@ void show_profile_menu(BankSystem &bank) {
 void show_deposit_menu(BankSystem &bank) {
   int choice;
   while (true) {
-    std::cout << "Меню вкладов:\n"
+    std::cout << "\nМеню вкладов:\n"
               << "1. Показать доступные вклады\n"
               << "2. Помощник по вкладам\n"
               << "3. Назад\n"

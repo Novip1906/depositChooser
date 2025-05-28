@@ -1,9 +1,10 @@
 #include "DepositAssistant.h"
 #include <cctype>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 
-DepositAssistant::DepositAssistant(BankSystem& bank) : bankSystem(bank) {}
+DepositAssistant::DepositAssistant(BankSystem &bank) : bankSystem(bank) {}
 
 void DepositAssistant::runAssistant(
     User &user, const std::vector<Deposit> &availableDeposits) {
@@ -23,6 +24,8 @@ void DepositAssistant::runAssistant(
       DepositChoice(user, availableDeposits);
     } else if (choice == 0) {
       std::cout << "Приятно было поболтать! Возвращаю Вас в основное меню\n";
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       return;
     } else {
       std::cout << "Пожалуйста, введите 1, 2 или 0\n";
@@ -320,6 +323,7 @@ bool DepositAssistant::checkFirstAnswer(
                       << "Максимальная ставка: " << deposit.getMaxPercent()
                       << "%\n"
                       << "Расчетная ставка по вкладу: " << newBet << "%\n"
+                      << std::fixed << std::setprecision(0)
                       << calculateIncome(sum, newBet, duration)
                       << "р. вы получите за " << duration << " м." << "\n"
                       << "С пополнением, со снятием\n"
@@ -341,10 +345,10 @@ bool DepositAssistant::checkFirstAnswer(
   }
 }
 
-void DepositAssistant::checkSecondAnswer(std::string& input, User& user,
-    const std::vector<Deposit>& availableDeposits,
-    double& sum, int& duration,
-    bool& withdrawProcents) {
+void DepositAssistant::checkSecondAnswer(
+    std::string &input, User &user,
+    const std::vector<Deposit> &availableDeposits, double &sum, int &duration,
+    bool &withdrawProcents) {
   while (true) {
     // Если пользователь хочет пополнять вклад, выбираем "ПростоВклад"
     if (input == "да") {
@@ -355,6 +359,7 @@ void DepositAssistant::checkSecondAnswer(std::string& input, User& user,
                     << "Максимальная ставка: " << deposit.getMaxPercent()
                     << "%\n"
                     << "Расчетная ставка по вкладу: " << newBet << "%\n"
+                    << std::fixed << std::setprecision(0)
                     << calculateIncome(sum, newBet, duration)
                     << "р. вы получите за " << duration << " м." << "\n"
                     << "С пополнением, "
@@ -375,6 +380,7 @@ void DepositAssistant::checkSecondAnswer(std::string& input, User& user,
                     << "Максимальная ставка: " << deposit.getMaxPercent()
                     << "%\n"
                     << "Расчетная ставка по вкладу: " << newBet << "%\n"
+                    << std::fixed << std::setprecision(0)
                     << calculateIncome(sum, newBet, duration)
                     << "р. вы получите за " << duration << " м." << "\n"
                     << "Без пополнения, "
@@ -415,9 +421,11 @@ double Deposit::calculateBet(const User &user, bool withdrawProcents) const {
   return adjustedBet;
 }
 
-void DepositAssistant::rechooseSumOrDuration(User& user, double& sum, int& duration,
-    Deposit& recommendedDeposit, double& newBet,
-    bool& withdrawProcents)  {
+void DepositAssistant::rechooseSumOrDuration(User &user, double &sum,
+                                             int &duration,
+                                             Deposit &recommendedDeposit,
+                                             double &newBet,
+                                             bool &withdrawProcents) {
   std::string input;
   double rememberBet = newBet;
 
@@ -486,52 +494,51 @@ void DepositAssistant::rechooseSumOrDuration(User& user, double& sum, int& durat
   return;
 }
 
-void DepositAssistant::increaseInterestRate(const User& user) const {
+void DepositAssistant::increaseInterestRate(const User &user) const {
   std::cout << "\nРекомендации по увеличению процентной ставки:\n";
   std::cout << "--------------------------------------------\n";
 
   bool hasRecommendations = false;
 
   if (!user.getSalary()) {
-      std::cout << "- Оформите зарплатный счёт в нашем банке (+1.0% к ставке)\n";
-      hasRecommendations = true;
+    std::cout << "- Оформите зарплатный счёт в нашем банке (+1.0% к ставке)\n";
+    hasRecommendations = true;
   }
 
   if (!user.getBroker()) {
-      std::cout << "- Откройте брокерский счёт (+0.5% к ставке)\n";
-      hasRecommendations = true;
+    std::cout << "- Откройте брокерский счёт (+0.5% к ставке)\n";
+    hasRecommendations = true;
   }
 
   if (!user.getSubscription()) {
-      std::cout << "- Подпишитесь на наши уведомления (+1.0% к ставке)\n";
-      hasRecommendations = true;
+    std::cout << "- Подпишитесь на наши уведомления (+1.0% к ставке)\n";
+    hasRecommendations = true;
   }
 
   if (!hasRecommendations) {
-      std::cout << "Вы уже используете все возможности для максимальной ставки!\n";
+    std::cout
+        << "Вы уже используете все возможности для максимальной ставки!\n";
   }
 
   std::cout << "--------------------------------------------\n\n";
 }
 
-bool DepositAssistant::showIfMenu(User& user, double sum, int duration,
-    bool withdrawProcents, Deposit& recommendedDeposit,
-    double newBet)  {
+bool DepositAssistant::showIfMenu(User &user, double sum, int duration,
+                                  bool withdrawProcents,
+                                  Deposit &recommendedDeposit, double newBet) {
   std::string input;
 
   while (true) {
-    std::cout << "Если Вы готовы открыть подобранный мною вклад, то нажмите 1, "
-                 "и я всё оформлю\n\n";
-    std::cout << "Если нужно перевыбрать срок или сумму, нажмите 2, мигом всё "
+    std::cout << "Если нужно перевыбрать срок или сумму, нажмите 1, мигом всё "
                  "сделаем!\n\n";
     std::cout << "Если хотите узнать, как увеличить Вашу процентную ставку, "
-                 "нажмите 3\n\n";
-    std::cout << "Если работа со мной на сегодня закончена, нажмите 4\n\n";
+                 "нажмите 2\n\n";
+    std::cout << "Если работа со мной на сегодня закончена, нажмите 3\n\n";
     std::cin >> input;
 
     if (input == "1") {
       rechooseSumOrDuration(user, sum, duration, recommendedDeposit, newBet,
-        withdrawProcents);
+                            withdrawProcents);
     } else if (input == "2") {
       // Логика увеличения процентной ставки
       increaseInterestRate(user);
@@ -540,6 +547,8 @@ bool DepositAssistant::showIfMenu(User& user, double sum, int duration,
       std::cout << std::endl;
       std::cout << "Приятно было поработать вместе! Возвращаю Вас в основное "
                    "меню\n\n";
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       return true;
     } else {
       std::cout << "Мне кажется, я Вас немного не понял. Пожалуйста, введите "
